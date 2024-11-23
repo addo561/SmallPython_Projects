@@ -81,3 +81,4 @@ The countdown continues until it reaches zero, at which point a celebratory mess
 
 
 
+NOTICE: BOOKS FOLDER IS A WEBSCRAPPING FOLDER USING SCRAPY
