@@ -61,7 +61,7 @@ class TicTactoe:
                 break   
         if win:
             return win
-        return False 
+        
     
         for row in self.board:
             for item in row:
