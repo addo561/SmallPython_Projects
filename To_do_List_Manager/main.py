@@ -7,7 +7,7 @@ class Task:
     def __init__(self,
         description:str,
         due_date:DateTime,
-        status=False,):
+        status=False):
             self.description = description
             self.status = status
             self.due_date = due_date
