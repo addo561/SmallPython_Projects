@@ -32,7 +32,7 @@ class To_do_list:
 
     def delete_task(self,id):
         del self.task[id]
-
+    @staticmethod
     def get_all(self):
         data = [(id,li[0],li[1],li[2]) for id,li in self.task.items()]
         df = pd.DataFrame(data)
