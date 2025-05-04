@@ -1,21 +1,22 @@
-from collections import defaultdict
 import streamlit as st
 import pandas as pd
-import datetime as dt
-from datetime import datetime
+from  typing import  List
+
+
+if 'next_task_id' not in st.session_state:
+    st.session_state.next_task_id = 0
 
 #Class for each  task
 class Task:
-    id=0
     def __init__(self,
         description:str,
         due_date,
-        status=False):
+        status:bool):
             self.description = description
             self.status = status
             self.due_date = due_date
-            Task.id += 1
-            self.id_new = Task.id
+            self.id_new = st.session_state.next_task_id
+            st.session_state.next_task_id +=1
 
     def is_completed(self):
         return 'completed' if self.status else 'pending..'
@@ -25,49 +26,63 @@ class Task:
     def get(self):
         return  [self.id_new,self.description,self.is_completed(),self.due_date]
 
-dictionary = defaultdict()
 
 class To_do_list:
-    def __init__(self,task=dictionary):
-        self.task = task
+    def __init__(self):
+        self.task = {}
 
     def add_task(self,task):
-        self.task[task[0]] = task
+        self.task[task[0]] = task[1:]
 
     def delete_task(self,id):
-        del self.task[id]
+        if id in self.task:
+            del self.task[id]
+            return True
+        return False
 
+
+    def  _dict(self):
+        return self.task
     def get_all(self):
-        data = [(id,li[0],li[1],li[2]) for id,li in self.task.items()]
-        df = pd.DataFrame(data)
-        df.columns = ['id','Task','status','date']
+        data = [(id, li[0], li[1], li[2]) for id, li in self.task.items()  if len(li)>=3]
+        columns:List[str]=['Id', 'Task', 'Status', 'Date']
+        df = pd.DataFrame(data, columns= columns)
         return df
 
+
     def get_pending(self,df):
-        filtered = df[df['status'].str.lower()=='pending..']
+        filtered = df[df['Status'].str.lower()=='pending..']
         return  filtered
 
     def  get_completed(self,df):
-        filtered = df[df['status'].str.lower()=='completed']
+        filtered = df[df['Status'].str.lower()=='completed']
         return  filtered
 
-    def  update(self,id,value):
-        if isinstance(value,str):
+    def update(self, id, field, value):
+        if field == "task":
             self.task[id][0] = value
-        elif isinstance(value,bool):
+        elif field == "status":
             self.task[id][1] = value
-        self.task[id][2] = value
+        elif field == "date":
+            self.task[id][2] = value
 
 
-
-
+'''
+task1 = Task(description='washing',due_date=datetime(2025,5,5))
+task2 = Task(description='bath',due_date=datetime(2025,5,6))
+lists  =  To_do_list()
+lists.add_task(task1.get())
+lists.add_task(task2.get())
+print(lists._dict())
+'''
 
 
 st.title('To_do_List Manager')
 st.sidebar.header('INPUTS')
 description = st.sidebar.text_input('Task')
 date = st.sidebar.date_input('Date')
-task = Task(description=description,due_date=date)
+finished_c = st.sidebar.checkbox('completed')
+task = Task(description=description,due_date=date,status=True if  finished_c else False)
 
 button_view = st.sidebar.button('View')
 if  button_view:
@@ -75,5 +90,38 @@ if  button_view:
     st.write(task.get())
 
 button_add = st.button('Add Task')
-lists =  To_do_list()
-if lists.add_task(task): st.markdown(':white_check_mark: Added')
+
+if 'lists' not in st.session_state:
+    st.session_state.lists = To_do_list()
+
+lists = st.session_state.lists
+
+if button_add:
+    lists.add_task(task.get())
+    st.markdown(':white_check_mark: Added')
+
+button_get  =  st.button('View all')
+if button_get:
+    st.write(lists.get_all())
+button = st.sidebar.button('Get_pending')
+if button:st.write(lists.get_pending(lists.get_all()))
+
+button = st.sidebar.button('Get_completed')
+if button:st.write(lists.get_completed(lists.get_all()))
+
+st.sidebar.subheader('DELETE')
+id = st.sidebar.text_input('Enter id to  delete')
+button = st.sidebar.button('Delete')
+if id and button:
+        lists.delete_task(id=int(id))
+
+st.sidebar.subheader('UPDATE')
+field = st.sidebar.text_input('field',key=1).lower()
+id = st.sidebar.text_input('id',key=2).lower()
+value =   st.sidebar.text_input('value',key=3).lower()
+buttonU = st.sidebar.button('Update')
+if  field and id and buttonU:
+    if not value:
+        st.write('Type  replacement')
+    lists.update(int(id),field,value)
+    st.success('Done')
