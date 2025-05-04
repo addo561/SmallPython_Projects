@@ -1,22 +1,23 @@
 import streamlit as st
 import pandas as pd
 from  typing import  List
+import datetime
 
 
-if 'next_task_id' not in st.session_state:
-    st.session_state.next_task_id = 0
+
 
 #Class for each  task
 class Task:
     def __init__(self,
+        id_new:int,
         description:str,
         due_date,
         status:bool):
             self.description = description
             self.status = status
             self.due_date = due_date
-            self.id_new = st.session_state.next_task_id
-            st.session_state.next_task_id +=1
+            self.id_new =  id_new
+
 
     def is_completed(self):
         return 'completed' if self.status else 'pending..'
@@ -67,22 +68,32 @@ class To_do_list:
             self.task[id][2] = value
 
 
-'''
-task1 = Task(description='washing',due_date=datetime(2025,5,5))
-task2 = Task(description='bath',due_date=datetime(2025,5,6))
+#Raw output
+task1 = Task(1,description='washing',status=False,due_date=datetime.date(2025,5,5))
+task2 = Task(2,description='bath',status=False,due_date=datetime.date(2025,5,6))
+task3 = Task(3,description='clean',status=False,due_date=datetime.date(2025,5,6))
+task4 = Task(4,description='eat',status=False,due_date=datetime.date(2025,5,6))
+task5 = Task(5,description='play',status=False,due_date=datetime.date(2025,5,6))
 lists  =  To_do_list()
 lists.add_task(task1.get())
 lists.add_task(task2.get())
+lists.add_task(task3.get())
+lists.add_task(task4.get())
+lists.add_task(task5.get())
 print(lists._dict())
-'''
+print(lists.get_all())
 
 
+
+
+#streamlit interface
 st.title('To_do_List Manager')
 st.sidebar.header('INPUTS')
 description = st.sidebar.text_input('Task')
 date = st.sidebar.date_input('Date')
+id= st.sidebar.number_input('Id')
 finished_c = st.sidebar.checkbox('completed')
-task = Task(description=description,due_date=date,status=True if  finished_c else False)
+task = Task(int(id),description=description,due_date=date,status=True if  finished_c else False)
 
 button_view = st.sidebar.button('View')
 if  button_view:
