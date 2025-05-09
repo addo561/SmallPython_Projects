@@ -6,7 +6,7 @@
 def BS(words,word):
     '''
         finding word index  in a list of strings
-        inefficient approach, different style  and  works in unsorted list,  O(N^2)
+        inefficient approach, different style  and  works with unsorted list,  O(N^2)
         Args:
             words : list[string]
             word  : word  to find  =  str
@@ -34,7 +34,7 @@ def bs2(words,word):
         for sorted  list
 
     '''
-    words  =  sorted(words)# sort first so  list becomes
+    words  =  sorted(words)# sort first so  list becomes  -> ['book','girl','groceries','man']
     l = 0
     r = len(words)-1
     while  l <= r:
